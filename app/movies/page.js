@@ -14,13 +14,32 @@ export default async function MoviesPage() {
       <div style={{ maxWidth: '900px', margin: '0 auto' }}>
         
         <header style={{ 
-          display: 'flex', 
-          justifyContent: 'center', 
-          alignItems: 'center', 
-          marginBottom: '40px' 
-        }}>
-          <h1 style={{ color: '#2c3e50', margin: 0, fontSize: '32px' }}><strong>Filmy v databázi</strong></h1>
-        </header>
+  display: 'grid', 
+  gridTemplateColumns: '1fr auto 1fr', // Rozdělí řádek na 3 části (levá, střed, pravá)
+  alignItems: 'center', 
+  marginBottom: '40px',
+  width: '100%' 
+}}>
+  <div></div>
+
+  <h1 style={{ color: '#2c3e50', margin: 0, fontSize: '32px', textAlign: 'center' }}>
+    <strong>Filmy v databázi</strong>
+  </h1>
+
+  <div style={{ textAlign: 'right' }}>
+    <Link href="/movies/new" style={{ 
+      backgroundColor: '#0070f3', 
+      color: 'white', 
+      padding: '10px 20px', 
+      borderRadius: '6px', 
+      textDecoration: 'none',
+      fontWeight: '600',
+      display: 'inline-block'
+    }}>
+      + Přidat film
+    </Link>
+  </div>
+</header>
 
         <div style={{ 
           display: 'grid', 
