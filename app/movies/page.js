@@ -8,6 +8,11 @@ export default function MoviesPage() {
   const [movies, setMovies] = useState([]);
   const [loading, setLoading] = useState(true);
 
+const [isFilterOpen, setIsFilterOpen] = useState(false);  //přidám filtr ( určuje jestli je filtr zaplý nebo ne - výchoze je vyplý)
+const [selectedGenres, setSelectedGenres] = useState([]); // k uložení jaké žánry v filtru filtruju, je tam array takže jich může být více najednou
+const [isGenreOpen, setIsGenreOpen] = useState(true); // přidání možnosti to sbalit do sebe 
+
+
   useEffect(() => {
     async function fetchMovies() {
       const { data } = await supabase.from('movies').select('*');
@@ -25,7 +30,7 @@ export default function MoviesPage() {
       prevMovies.map(m => m.id === movieId ? { ...m, is_favorite: !currentStatus } : m)
     );
 
-    // 2. Pošleme info do databáze 
+    // Pošleme info do databáze 
     const { error } = await supabase
       .from('movies')
       .update({ is_favorite: !currentStatus })
@@ -40,6 +45,32 @@ export default function MoviesPage() {
     }
   }
 
+  const handleGenreChange = (genre) => {
+  if (selectedGenres.includes(genre)) {
+    // Pokud už. klikl na žánr podruhý (zrušil označení)
+    setSelectedGenres(selectedGenres.filter(g => g !== genre));
+  } else {
+    // Pokud tam nenípř přidáme ho (až na konec array)
+    setSelectedGenres([...selectedGenres, genre]);
+  }
+};
+// ZDE SE DEFINUJE FILTR
+  const allGenres = [...new Set(movies.map(m => m.genre).filter(Boolean))];
+
+  const filteredMovies = movies.filter(movie => {
+    return selectedGenres.length === 0 || selectedGenres.includes(movie.genre);
+  });
+ 
+
+
+
+
+
+
+
+
+
+
   if (loading) return <div style={{ textAlign: 'center', padding: '50px' }}>Načítám...</div>;
 
   return (
@@ -47,7 +78,22 @@ export default function MoviesPage() {
       <div style={{ maxWidth: '900px', margin: '0 auto' }}>
         
         <header style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', alignItems: 'center', marginBottom: '40px', width: '100%' }}>
-          <div></div>
+          <div>
+
+<button 
+  onClick={() => {
+    if (isFilterOpen) {
+      setIsFilterOpen(false); // Zavře výběr filtru
+      setSelectedGenres([]);  // zruší filtry
+    } else {
+      setIsFilterOpen(true);  // otevře filtry
+    }
+  }}
+  style={{ backgroundColor: '#2c3e50', color: 'white', padding: '10px 20px', borderRadius: '6px', border: 'none', fontWeight: '600', cursor: 'pointer' }}
+>
+  {isFilterOpen ? '✖ Zrušit filtry' : '🔍 Filtrovat'}
+</button>
+          </div>
           <h1 style={{ color: '#2c3e50', margin: 0, fontSize: '32px', textAlign: 'center' }}>
             <strong>Filmy v databázi</strong>
           </h1>
@@ -56,10 +102,36 @@ export default function MoviesPage() {
               + Přidat film
             </Link>
           </div>
+
         </header>
 
+
+{isFilterOpen && (
+  <div style={{ backgroundColor: 'white', padding: '20px', marginBottom: '30px' }}>
+    <h3>Kategorie</h3>
+    <h4>Žánr</h4>
+    
+    <div style={{ display: 'flex', gap: '10px' }}>
+      {allGenres.map(genre => (
+        <label key={genre}>
+          <input 
+            type="checkbox"
+            checked={selectedGenres.includes(genre)}
+            onChange={() => handleGenreChange(genre)}
+            style={{ 
+              width: '18px',  
+              height: '18px',  // zvetseni checkboxu at neni trpajzlík
+              cursor: 'pointer' // aby věděli podvědomě i dmenti že je to klikatelné
+            }}
+          />
+          {genre}
+        </label>
+      ))}
+    </div>
+  </div>
+)}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '25px', alignItems: 'stretch' }}>
-          {movies?.map((movie) => (
+          {filteredMovies?.map((movie) => (
             <div key={movie.id} style={{ position: 'relative' }}>
               
               <button 
