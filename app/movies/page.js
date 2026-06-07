@@ -135,11 +135,11 @@ const [isRatingOpen, setIsRatingOpen] = useState(true);
 
 
 {/* rozdělení obrazovky na main a na filtr*/}
-        <div style={{ display: 'flex', gap: '30px', alignItems: 'flex-start', width: '100%' }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '30px', alignItems: 'flex-start', width: '100%' }}>
           
           {/*Filtr*/}
           {isFilterOpen && (
-<aside style={{ width: '250px', flexShrink: 0, backgroundColor: 'white', padding: '30px', borderRadius: '12px', position: 'sticky', top: '40px', maxHeight: 'calc(100vh - 80px)', overflowY: 'auto' }}>              
+            <aside style={{ flex: '1 1 250px', minWidth: '250px', maxWidth: '300px', backgroundColor: 'white', padding: '30px', borderRadius: '12px', position: 'sticky', top: '40px', maxHeight: 'calc(100vh - 80px)', overflowY: 'auto' }}>        
               
               {/*filtr pro favorite */}
               <div style={{ marginBottom: '25px', paddingBottom: '25px', borderBottom: '2px solid #f4f7f6' }}>
@@ -148,9 +148,9 @@ const [isRatingOpen, setIsRatingOpen] = useState(true);
                     type="checkbox"
                     checked={showFavoritesOnly}
                     onChange={() => setShowFavoritesOnly(!showFavoritesOnly)}
-                    style={{ width: '24px', height: '24px', cursor: 'pointer', accentColor: '#fdd32a' }}
+                    style={{ width: '18px', height: '18px', cursor: 'pointer', accentColor: '#fdd32a' }}
                   />
-                  ⭐️ Oblíbené
+                   Oblíbené ⭐️
                 </label>
               </div>
 
@@ -176,6 +176,8 @@ const [isRatingOpen, setIsRatingOpen] = useState(true);
                         <input 
                           type="number" 
                           step="0.1" 
+                          min="0"
+                          max="10"
                           value={minRating} 
                           onChange={(e) => setMinRating(Number(e.target.value))} 
                           style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #d1d9e6', fontSize: '15px', outline: 'none', color: '#1a1a1a', backgroundColor: 'white' }} 
@@ -186,6 +188,8 @@ const [isRatingOpen, setIsRatingOpen] = useState(true);
                         <input 
                           type="number" 
                           step="0.1" 
+                          min="0"
+                          max="10"
                           value={maxRating} 
                           onChange={(e) => setMaxRating(Number(e.target.value))} 
                           style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #d1d9e6', fontSize: '15px', outline: 'none', color: '#1a1a1a', backgroundColor: 'white' }} 
@@ -233,7 +237,6 @@ const [isRatingOpen, setIsRatingOpen] = useState(true);
 
               </div>
 
-              {/* Obří rozklikávací nadpis pro Žánry */}
               <div>
                 <button 
                   onClick={() => setIsGenreOpen(!isGenreOpen)}
@@ -249,12 +252,12 @@ const [isRatingOpen, setIsRatingOpen] = useState(true);
                 {isGenreOpen && (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', marginTop: '20px', paddingLeft: '5px' }}>
                     {allGenres.map(genre => (
-                      <label key={genre} style={{ display: 'flex', alignItems: 'center', gap: '15px', cursor: 'pointer', fontSize: '16px', fontWeight: '500', color: '#333' }}>
+                      <label key={genre} style={{ display: 'flex', alignItems: 'center', gap: '15px', cursor: 'pointer', fontSize: '13px', fontWeight: '500', color: '#333' }}>
                         <input 
                           type="checkbox"
                           checked={selectedGenres.includes(genre)}
                           onChange={() => handleGenreChange(genre)}
-                          style={{ width: '22px', height: '22px', cursor: 'pointer', accentColor: '#0070f3' }}
+                          style={{ width: '18px', height: '18px', cursor: 'pointer', accentColor: '#0070f3' }}
                         />
                         {genre}
                       </label>
@@ -299,21 +302,21 @@ const [isRatingOpen, setIsRatingOpen] = useState(true);
               <Link href={`/movies/${movie.id}`} style={{ textDecoration: 'none' }}>
                 <div style={{ 
                   backgroundColor: 'white', 
-                  padding: '20px', 
+                  padding: '0',    /* odstraněný padding */
                   borderRadius: '12px', 
                   boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
                   border: '1px solid #e1e8ed',
-                  textAlign: 'center',
+                  textAlign: 'center',     /* text vycentrován */
                   display: 'flex',
                   flexDirection: 'column',
                   justifyContent: 'space-between',
                   width: '100%',
                   height: '100%',
-                  minHeight: '220px'
+                  minHeight: '220px',
+                  overflow: 'hidden'    
                 }}>
-                  <div>
-                     
-                    <h2 style={{ margin: '0 0 10px 0', color: '#1a1a1a', fontSize: '20px', paddingRight: '35px' }}> {/* right padding - text nenarazí do hvězdičky*/ }
+                  <div style={{ paddingTop: '25px', paddingLeft: '40px', paddingRight: '40px'}}> 
+                    <h2 style={{ margin: '0 0 10px 0', color: '#1a1a1a', fontSize: '20px' }}> 
                       {movie.title}
                     </h2>
                     <p style={{ color: '#666', fontSize: '14px', margin: '5px 0' }}>
@@ -322,12 +325,13 @@ const [isRatingOpen, setIsRatingOpen] = useState(true);
                   </div>
 
                   <div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '20px', fontSize: '13px', color: '#888' }}>
+                    
+                    <div style={{ display: 'flex', justifyContent: 'center', gap: '15px', marginTop: '20px', fontSize: '13px', color: '#888' }}>
                       <span>📅 {movie.year}</span>
                       <span>⏱️ {movie.duration}</span>
                       <span>🎭 {movie.genre}</span>
                     </div>
-                    <div style={{ marginTop: '15px', paddingTop: '10px', borderTop: '1px solid #eee', fontWeight: 'bold', color: '#f39c12' }}>
+                    <div style={{ marginTop: '15px', padding: '15px 0', borderTop: '1px solid #eee', fontWeight: 'bold', color: '#f39c12', backgroundColor: '#fafbfc' }}>
                       Hodnocení: {movie.rating} / 10 ⭐️
                     </div>
                   </div>
