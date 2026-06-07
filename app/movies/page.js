@@ -13,6 +13,16 @@ const [selectedGenres, setSelectedGenres] = useState([]); // k uložení jaké �
 const [isGenreOpen, setIsGenreOpen] = useState(true); // přidání možnosti to sbalit do sebe 
 const [showFavoritesOnly, setShowFavoritesOnly] = useState(false); 
 
+const [minYear, setMinYear] = useState(1900);
+const [maxYear, setMaxYear] = useState(2026);
+const [minRating, setMinRating] = useState(0);
+const [maxRating, setMaxRating] = useState(10);   // hodnoty pro slidry na filtrování
+
+const [isYearOpen, setIsYearOpen] = useState(true);
+const [isRatingOpen, setIsRatingOpen] = useState(true);
+
+
+
   useEffect(() => {
     async function fetchMovies() {
       const { data } = await supabase.from('movies').select('*');
@@ -62,9 +72,15 @@ const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
     
     // koukne jestli jsou favorite
     const matchFavorite = showFavoritesOnly ? movie.is_favorite === true : true;
+
+    const matchYear = movie.year >= minYear && movie.year <= maxYear;
     
-    // Film projde jen tehdy, když splňuje obě podmínky
-    return matchGenre && matchFavorite;
+    // zkontroluje jesti hodnocení spadá mezi hodnoty 
+    const matchRating = movie.rating >= minRating && movie.rating <= maxRating;
+    
+    // kd\ž splní všechno jako všechno projde
+    return matchGenre && matchFavorite && matchYear && matchRating;
+    
   });
 
 
@@ -93,6 +109,12 @@ const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
     } else {
       setIsFilterOpen(true);  // otevře filtry
     }
+  setMinYear(1900);  
+  setMaxYear(2026);   
+  setMinRating(0);    
+  setMaxRating(10);   
+
+
   }}
   style={{ backgroundColor: '#2c3e50', color: 'white', padding: '10px 20px', borderRadius: '6px', border: 'none', fontWeight: '600', cursor: 'pointer' }}
 >
@@ -117,38 +139,10 @@ const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
           
           {/*Filtr*/}
           {isFilterOpen && (
-            <aside style={{ width: '250px', flexShrink: 0, backgroundColor: 'white', padding: '30px', borderRadius: '12px', position: 'sticky', top: '40px' }}>
+<aside style={{ width: '250px', flexShrink: 0, backgroundColor: 'white', padding: '30px', borderRadius: '12px', position: 'sticky', top: '40px', maxHeight: 'calc(100vh - 80px)', overflowY: 'auto' }}>              
               
-              {/* Obří rozklikávací nadpis pro Žánry */}
-              <button 
-                onClick={() => setIsGenreOpen(!isGenreOpen)}
-                style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'none', border: 'none', padding: '0', cursor: 'pointer', fontSize: '26px', fontWeight: '900', color: '#1a1a1a' }}
-              >
-                Žánry 
-                <span style={{ fontSize: '18px', color: '#0070f3' }}>
-                  {isGenreOpen ? '▲' : '▼'}
-                </span>
-              </button>
-
-              {/* Samotné checkboxy pod sebou , ukazou se když je rozkliklej trojuhelnicek */}
-              {isGenreOpen && (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', marginTop: '25px', paddingLeft: '5px' }}>
-                  {allGenres.map(genre => (
-                    <label key={genre} style={{ display: 'flex', alignItems: 'center', gap: '15px', cursor: 'pointer', fontSize: '18px', fontWeight: '500', color: '#333' }}>
-                      <input 
-                        type="checkbox"
-                        checked={selectedGenres.includes(genre)}
-                        onChange={() => handleGenreChange(genre)}
-                        style={{ width: '24px', height: '24px', cursor: 'pointer', accentColor: '#0070f3' }}
-                      />
-                      {genre}
-                    </label>
-                  ))}
-                </div>
-              )}
-
-                    {/*filtr pro favorite */}
-              <div style={{ marginTop: '30px', paddingTop: '20px', borderTop: '2px solid #f4f7f6' }}>
+              {/*filtr pro favorite */}
+              <div style={{ marginBottom: '25px', paddingBottom: '25px', borderBottom: '2px solid #f4f7f6' }}>
                 <label style={{ display: 'flex', alignItems: 'center', gap: '15px', cursor: 'pointer', fontSize: '20px', fontWeight: '900', color: '#1a1a1a' }}>
                   <input 
                     type="checkbox"
@@ -160,6 +154,114 @@ const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
                 </label>
               </div>
 
+              {/* filtr pro rok a rating*/}
+              <div>
+                
+                {/* rating */}
+                <div style={{ marginBottom: '25px', paddingBottom: '25px', borderBottom: '2px solid #f4f7f6' }}>
+                  <button 
+                    onClick={() => setIsRatingOpen(!isRatingOpen)}
+                    style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'none', border: 'none', padding: '0', cursor: 'pointer', fontSize: '20px', fontWeight: '900', color: '#1a1a1a', marginBottom: isRatingOpen ? '15px' : '0' }}
+                  >
+                    Hodnocení
+                    <span style={{ fontSize: '16px', color: '#0070f3' }}>
+                      {isRatingOpen ? '▲' : '▼'}
+                    </span>
+                  </button>
+                  
+                  {isRatingOpen && (
+                    <div style={{ display: 'flex', gap: '15px' }}>
+                      <div style={{ flex: 1 }}>
+                        <label style={{ display: 'block', fontSize: '13px', color: '#666', marginBottom: '5px', fontWeight: '600' }}>Min ⭐️</label>
+                        <input 
+                          type="number" 
+                          step="0.1" 
+                          value={minRating} 
+                          onChange={(e) => setMinRating(Number(e.target.value))} 
+                          style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #d1d9e6', fontSize: '15px', outline: 'none', color: '#1a1a1a', backgroundColor: 'white' }} 
+                        />
+                      </div>
+                      <div style={{ flex: 1 }}>
+                        <label style={{ display: 'block', fontSize: '13px', color: '#666', marginBottom: '5px', fontWeight: '600' }}>Max ⭐️</label>
+                        <input 
+                          type="number" 
+                          step="0.1" 
+                          value={maxRating} 
+                          onChange={(e) => setMaxRating(Number(e.target.value))} 
+                          style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #d1d9e6', fontSize: '15px', outline: 'none', color: '#1a1a1a', backgroundColor: 'white' }} 
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* rok */}
+                <div style={{ marginBottom: '25px', paddingBottom: '25px', borderBottom: '2px solid #f4f7f6' }}>
+                  <button 
+                    onClick={() => setIsYearOpen(!isYearOpen)}
+                    style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'none', border: 'none', padding: '0', cursor: 'pointer', fontSize: '20px', fontWeight: '900', color: '#1a1a1a', marginBottom: isYearOpen ? '15px' : '0' }}
+                  >
+                    Rok vydání
+                    <span style={{ fontSize: '16px', color: '#0070f3' }}>
+                      {isYearOpen ? '▲' : '▼'}
+                    </span>
+                  </button>
+                  
+                  {isYearOpen && (
+                    <div style={{ display: 'flex', gap: '15px', marginBottom: '10px' }}>
+                      <div style={{ flex: 1 }}>
+                        <label style={{ display: 'block', fontSize: '13px', color: '#666', marginBottom: '5px', fontWeight: '600' }}>Od roku</label>
+                        <input 
+                          type="number" 
+                          value={minYear} 
+                          onChange={(e) => setMinYear(Number(e.target.value))} 
+                          style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #d1d9e6', fontSize: '15px', outline: 'none', color: '#1a1a1a', backgroundColor: 'white' }} 
+                        />
+                      </div>
+                      <div style={{ flex: 1 }}>
+                        <label style={{ display: 'block', fontSize: '13px', color: '#666', marginBottom: '5px', fontWeight: '600' }}>Do roku</label>
+                        <input 
+                          type="number" 
+                          value={maxYear} 
+                          onChange={(e) => setMaxYear(Number(e.target.value))} 
+                          style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #d1d9e6', fontSize: '15px', outline: 'none', color: '#1a1a1a', backgroundColor: 'white' }} 
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+              </div>
+
+              {/* Obří rozklikávací nadpis pro Žánry */}
+              <div>
+                <button 
+                  onClick={() => setIsGenreOpen(!isGenreOpen)}
+                  style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'none', border: 'none', padding: '0', cursor: 'pointer', fontSize: '20px', fontWeight: '900', color: '#1a1a1a' }}
+                >
+                  Žánry 
+                  <span style={{ fontSize: '16px', color: '#0070f3' }}>
+                    {isGenreOpen ? '▲' : '▼'}
+                  </span>
+                </button>
+
+                {/* Samotné checkboxy pod sebou , ukazou se když je rozkliklej trojuhelnicek */}
+                {isGenreOpen && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', marginTop: '20px', paddingLeft: '5px' }}>
+                    {allGenres.map(genre => (
+                      <label key={genre} style={{ display: 'flex', alignItems: 'center', gap: '15px', cursor: 'pointer', fontSize: '16px', fontWeight: '500', color: '#333' }}>
+                        <input 
+                          type="checkbox"
+                          checked={selectedGenres.includes(genre)}
+                          onChange={() => handleGenreChange(genre)}
+                          style={{ width: '22px', height: '22px', cursor: 'pointer', accentColor: '#0070f3' }}
+                        />
+                        {genre}
+                      </label>
+                    ))}
+                  </div>
+                )}
+              </div>
             </aside>
 
           )}
